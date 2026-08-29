@@ -7,7 +7,6 @@
 <meta name="description" content="Sebi, you're thirty. We have a present. Well — a decision.">
 <meta name="theme-color" content="#f4efe6">
 <meta name="robots" content="noindex">
-<!-- nothing to see in /easteregg.html -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Barlow+Condensed:ital,wght@0,500;0,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -161,6 +160,9 @@ body[data-theme="kart"] .btn{font-family:var(--cond); font-weight:800; font-styl
   radial-gradient(2px 2px at 70% 12%, #ffe9a8 60%, transparent 61%), radial-gradient(1px 1px at 50% 60%, #fff 60%, transparent 61%),
   radial-gradient(ellipse at 50% 120%, rgba(143,176,255,.35), transparent 60%);}
 .card.b .t{color:#e8c66b; font-weight:300}
+.card.c{background:var(--card); color:var(--ink); box-shadow:inset 0 0 0 1px var(--line); min-height:6.5rem}
+.card.c .t{color:var(--accent); font-style:italic}
+@media (min-width:600px){.card.c{grid-column:1 / -1}}
 .card>*{position:relative}
 
 /* ---------- hero art ---------- */
@@ -505,7 +507,12 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
         <span class="tag">Option B</span>
         <span class="t">Into the dark</span>
       </button>
+      <button class="card c" id="card-egg" hidden>
+        <span class="tag">Option ?</span>
+        <span class="t">The easter egg</span>
+      </button>
     </div>
+    <p class="react" id="egg-react" aria-live="polite" style="min-height:0;margin:.5rem 0 0"></p>
   </div>
   <div class="foot"><p class="small muted" style="text-align:center;margin:0">You can come back here any time and look at the other one.</p></div>
 </section>
@@ -769,6 +776,8 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     current = r;
     sky.setActive(body.dataset.theme === 'stars');
     if (r === 'iq-score') iq.showScore();
+    if (r === 'kart-fine' || r === 'stars-fine') seen.mark(r.split('-')[0]);
+    if (r === 'choose') seen.apply();
   }
 
   document.addEventListener('click', e => {
@@ -777,6 +786,12 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     if (e.target.closest('[data-back]')){
       if (depth > 0 && history.length > 1){ depth--; history.back(); }
       else { const i = order.indexOf(current); location.hash = order[Math.max(0, i-1)]; }
+      return;
+    }
+    if (e.target.closest('#card-egg')){
+      const el = document.getElementById('egg-react');
+      el.classList.remove('on'); void el.offsetWidth;
+      el.textContent = "It wouldn't be an easter egg if it were that easy to find."; el.classList.add('on');
       return;
     }
     if (e.target.closest('#iq-retake')){ iq.reset(); depth++; location.hash = 'iq1'; return; }
@@ -812,6 +827,17 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
       s.querySelector('.btn.reveal').classList.remove('on');
     });
   }
+
+  /* ---- explored both? ---- */
+  const seen = (function(){
+    const KEY = 'sebi30-seen';
+    function load(){ try { return JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch(e){ return {}; } }
+    if (new URLSearchParams(location.search).has('seen')){ try { sessionStorage.setItem(KEY, '{"kart":true,"stars":true}'); } catch(e){} }
+    return {
+      mark(p){ const a = load(); a[p] = true; try { sessionStorage.setItem(KEY, JSON.stringify(a)); } catch(e){} },
+      apply(){ const a = load(); document.getElementById('card-egg').hidden = !(a.kart && a.stars); }
+    };
+  })();
 
   /* ---- IQ calibration ---- */
   const iq = (function(){
@@ -895,7 +921,6 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
   })();
 
   render();
-  console.log('%cIndex of /', 'font:bold 20px monospace'); console.log('%c  → /files/', 'font:14px monospace');
 })();
 </script>
 </body>

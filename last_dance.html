@@ -3,14 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>🥚</title>
+<title>…</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#e9f3e4">
+<meta name="theme-color" content="#0a0a0c">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,500&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
   html,body{margin:0; height:100%}
-  body{background:#e9f3e4; display:grid; place-items:center; min-height:100svh; overflow:hidden; -webkit-tap-highlight-color:transparent; font-family:"Fraunces",Georgia,serif}
+  body.gate{background:#0a0a0c}
+  body{background:#e9f3e4; transition:background .8s; display:grid; place-items:center; min-height:100svh; overflow:hidden; -webkit-tap-highlight-color:transparent; font-family:"Fraunces",Georgia,serif}
   .stage{position:relative; width:min(72vw,300px); aspect-ratio:300/380; cursor:pointer; user-select:none}
   svg{width:100%; height:100%; display:block; overflow:visible}
   .shadow{transition:transform .5s}
@@ -28,13 +29,44 @@
   .bubble{position:absolute; left:74%; top:-2.6rem; transform:translate(-50%,10px) scale(.6); opacity:0; background:#fff; color:#2b2b2b; border:3px solid #2b2b2b; border-radius:1.2rem; padding:.55rem 1rem; font-style:italic; font-size:clamp(1.3rem,6vw,1.8rem); white-space:nowrap; transition:transform .5s cubic-bezier(.2,.8,.2,1.3) .7s, opacity .3s .7s; pointer-events:none}
   .bubble::after{content:""; position:absolute; left:50%; bottom:-14px; width:18px; height:18px; background:#fff; border-right:3px solid #2b2b2b; border-bottom:3px solid #2b2b2b; transform:translateX(-50%) rotate(45deg)}
   [data-stage="3"] .bubble{opacity:1; transform:translate(-50%,0) scale(1)}
+  /* ---- the gate ---- */
+  .gate .stage,.gate .peek{display:none}
+  #gate{display:none; color:#d9d6cf; text-align:center; padding:2rem 1.25rem; max-width:24rem}
+  .gate #gate{display:block}
+  .figure{width:min(52vw,190px); margin:0 auto 1.5rem; filter:drop-shadow(0 0 30px rgba(180,170,255,.18))}
+  .eyes{animation:blink 5s infinite}
+  @keyframes blink{0%,92%,100%{transform:scaleY(1)} 95%{transform:scaleY(.05)}}
+  .eyes circle{transform-origin:center}
+  #gate p{font-style:italic; font-size:clamp(1.25rem,5.5vw,1.6rem); line-height:1.45; margin:0 0 1.5rem}
+  #gate form{display:flex; gap:.5rem; justify-content:center}
+  #gate input{width:7rem; font:inherit; font-size:1.6rem; text-align:center; background:transparent; color:#fff; border:0; border-bottom:2px solid #6b6880; padding:.3rem 0; outline:none; border-radius:0}
+  #gate input:focus{border-color:#d9d6cf}
+  #gate input{-moz-appearance:textfield; appearance:textfield}
+  #gate input::-webkit-outer-spin-button,#gate input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  #gate button{font:inherit; font-size:1rem; font-style:italic; background:transparent; color:#d9d6cf; border:1px solid #6b6880; border-radius:999px; padding:.5rem 1.1rem; cursor:pointer}
+  #gate .no{min-height:1.6rem; margin-top:1rem; font-style:italic; color:#a09cb3; opacity:0; transition:opacity .3s}
+  #gate .no.on{opacity:1}
   .peek{position:fixed; inset:0; background:#000; display:none; place-items:center; z-index:9}
   .peek.on{display:grid}
   .peek img{max-width:100%; max-height:100%; object-fit:contain}
   @media (prefers-reduced-motion:reduce){*{transition-duration:.01s !important; animation:none !important}}
 </style>
 </head>
-<body>
+<body class="gate">
+  <div id="gate">
+    <svg class="figure" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M100 8 C62 8 44 46 40 80 C36 116 24 150 18 200 L10 252 L190 252 L182 200 C176 150 164 116 160 80 C156 46 138 8 100 8Z" fill="#17161c"/>
+      <path d="M100 30 C78 30 66 58 66 86 C66 112 80 130 100 130 C120 130 134 112 134 86 C134 58 122 30 100 30Z" fill="#050508"/>
+      <g class="eyes"><circle cx="86" cy="92" r="4" fill="#e8dcff"/><circle cx="114" cy="92" r="4" fill="#e8dcff"/></g>
+      <path d="M40 240 C60 220 140 220 160 240" stroke="#0a0a0c" stroke-width="3" fill="none"/>
+    </svg>
+    <p>I picked a number between 1 and 100.<br>Which one is it?</p>
+    <form id="ask" autocomplete="off">
+      <input id="num" type="number" inputmode="numeric" min="1" max="100" placeholder="?" required aria-label="Your guess">
+      <button type="submit">Tell me</button>
+    </form>
+    <div class="no" id="no"></div>
+  </div>
   <div class="stage" id="stage" data-stage="0" role="button" aria-label="An egg. Tap it.">
     <div class="bubble">Oh Behbi&rsquo;</div>
     <svg viewBox="0 0 300 380" xmlns="http://www.w3.org/2000/svg">
@@ -77,8 +109,21 @@
   </div>
   <div class="peek" id="peek"><img src="assets/egg-original.jpg" alt="The whole picture."></div>
 <script>
+  const ask = document.getElementById('ask'), num = document.getElementById('num'), no = document.getElementById('no');
+  ask.addEventListener('submit', e => {
+    e.preventDefault();
+    const n = parseInt(num.value, 10);
+    if ((n * 7919) % 1000 === 3){
+      document.body.classList.remove('gate');
+      document.querySelector('meta[name=theme-color]').setAttribute('content', '#e9f3e4');
+    } else {
+      no.textContent = 'No.'; no.classList.add('on');
+      ask.querySelector('button').disabled = true;
+      setTimeout(() => location.replace('./'), 900);
+    }
+  });
   const stage = document.getElementById('stage'), peek = document.getElementById('peek');
-  const pre = new URLSearchParams(location.search).get('stage'); if (pre !== null) stage.dataset.stage = Math.min(3, +pre);
+  const pre = new URLSearchParams(location.search).get('stage'); if (pre !== null){ stage.dataset.stage = Math.min(3, +pre); document.body.classList.remove('gate'); }
   stage.addEventListener('click', e => {
     const s = +stage.dataset.stage;
     if (s < 3){

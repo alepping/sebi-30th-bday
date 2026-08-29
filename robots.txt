@@ -1,3 +1,2 @@
 User-agent: *
-Disallow: /easteregg.html
-Disallow: /files/
+Disallow: /last_dance.html
