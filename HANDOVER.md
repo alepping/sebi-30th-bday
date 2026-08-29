@@ -78,6 +78,7 @@ gh api repos/alepping/sebi-30th-bday/pages/builds/latest --jq .status
 ```
 intro → q1 → q2 → q3 (meaningless joke choices, each with a snarky reaction)
       → choose (the real fork)
+      → iq → iq1..iq5 (IQ calibration: sudoku, E?mc², E²=(pc)²+?, 1/31, mahjong) → iq-score
          ├── kart  → kart-place  → kart-plan  → kart-fine  → (link to stars)
          └── stars → stars-place → stars-plan → stars-fine → (link to kart)
 ```
@@ -87,7 +88,8 @@ intro → q1 → q2 → q3 (meaningless joke choices, each with a snarky reactio
 - Sebi's face: `assets/sebi-head.png` is a Vision person-segmentation cutout of `sebi_photo.jpg` (source photo is **gitignored**, stays local). Composited via inline SVG into a racing helmet (kart hero) and a space helmet (stars hero). `assets/sebi-bust.png` is unused so far.
 - Photos: `assets/kart-track.jpg` (Wikimedia CC0, generic) and `assets/westhavelland-night.jpg` (Wikimedia, Anphex, CC BY-SA 4.0 — credit is in the caption, keep it).
 - Yellow `<span class="todo">` markers in the page = facts the user still has to supply (package choice, number of guests, dinner, overnight). Search `class="todo"`.
-- The three joke questions are **dummies** — the user will supply the real ones.
+- Warm-up questions q1–q5 are the user's own content — don't rewrite them.
+- IQ block: answers live in `sessionStorage` (`sebi30-iq`); score tiers 5→200, 4→150, 3→100, 2→50, 1→20, 0→0 with a Sebi illustration each (`assets/sebi-head-soft.png`, feathered cutout). Preview a tier without answering: `index.html?iq=4#iq-score`.
 
 ### Research facts used (verified 2026-08-29)
 - Berlin Kart: Werbellinstraße 50, 12053 Berlin, U8 Boddinstraße, indoor ~400 m (site still claims 752 m in places), 6.5 hp Sodi karts, lap timing on monitors, packages €22 (11 min) – €77 (66 min endurance), open daily. https://www.berlin-kart.de/
