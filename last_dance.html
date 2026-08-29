@@ -107,17 +107,21 @@
       </g>
     </svg>
   </div>
-  <audio id="boss" src="assets/last_dance.mp3" loop preload="auto"></audio>
+  <audio id="boss" loop preload="auto" playsinline><source src="assets/last_dance.mp3?v=2" type="audio/mpeg"></audio>
   <div class="peek" id="peek"><img src="assets/egg-original.jpg" alt="The whole picture."></div>
 <script>
   /* ---- final boss music: autoplay if allowed, else on first interaction ---- */
   const boss = document.getElementById('boss');
   boss.volume = .7;
+  const GESTURES = ['click','touchend','pointerup','keydown'];
+  let musicOn = false;
   function startMusic(){
-    if (!boss.paused) return;
-    boss.play().then(() => { ['pointerdown','keydown','touchstart'].forEach(ev => document.removeEventListener(ev, startMusic)); }).catch(() => {});
+    if (musicOn) return;
+    if (boss.error || boss.networkState === 3) boss.load();   // e.g. a cached 404 from earlier
+    const p = boss.play();
+    if (p && p.then) p.then(() => { musicOn = true; GESTURES.forEach(ev => document.removeEventListener(ev, startMusic)); }).catch(() => {});
   }
-  ['pointerdown','keydown','touchstart'].forEach(ev => document.addEventListener(ev, startMusic, {passive:true}));
+  GESTURES.forEach(ev => document.addEventListener(ev, startMusic, {passive:true}));
   startMusic();
   function fadeMusic(){
     const t = setInterval(() => { boss.volume = Math.max(0, boss.volume - .05); if (boss.volume === 0){ boss.pause(); clearInterval(t); } }, 120);
