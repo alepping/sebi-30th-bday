@@ -7,6 +7,7 @@
 <meta name="description" content="Sebi, you're thirty. We have a present. Well — a decision.">
 <meta name="theme-color" content="#f4efe6">
 <meta name="robots" content="noindex">
+<!-- nothing to see in /easteregg.html -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Barlow+Condensed:ital,wght@0,500;0,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -43,6 +44,7 @@ body{
 a{color:inherit}
 button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer; -webkit-tap-highlight-color:transparent}
 img,svg{max-width:100%; display:block}
+[hidden]{display:none !important}
 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
 
 /* ---------- backdrops ---------- */
@@ -274,8 +276,8 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     <p class="kicker">What are you?</p>
     <div class="opts" style="margin-top:0">
       <button class="opt" data-react="Combobulating. Naturally."><span>Combobulating</span><span class="k">a</span></button>
-      <button class="opt" data-react="Schlepping. Respect."><span>Schlepping</span><span class="k">b</span></button>
-      <button class="opt" data-react="Boring."><span>Clauding</span><span class="k">c</span></button>
+      <button class="opt" data-react="Schlepping. Good Choice."><span>Schlepping</span><span class="k">b</span></button>
+      <button class="opt" data-react="Mhh..."><span>Clauding</span><span class="k">c</span></button>
     </div>
     <p class="react" aria-live="polite"></p>
   </div>
@@ -431,7 +433,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
 
 <!-- ============ IQ: SCORE ============ -->
 <section class="screen" id="s-iq-score" data-route="iq-score">
-  <div class="top"><button data-back>&larr; Back</button><span>IQ calibration · result</span></div>
+  <div class="top"><button data-back id="iq-back">&larr; Back</button><span>IQ calibration · result</span></div>
   <div class="body">
     <div class="iq-art" id="iq-art">
       <!-- 5/5: galaxy brain -->
@@ -479,8 +481,10 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     <p class="small muted" id="iq-detail"></p>
   </div>
   <div class="foot">
-    <button class="btn" data-go="choose">Alright, the real one &rarr;</button>
+    <button class="btn" id="iq-go" data-go="choose">Alright, the real one &rarr;</button>
     <button class="btn ghost" id="iq-retake">Retake (won't help)</button>
+    <button class="btn" id="iq-restart">Start from the very beginning</button>
+    <p class="small muted" id="iq-dead" style="text-align:center;margin:0" hidden>This is the end of the road.<br>Scan the QR code again and start fresh.<br>No, the back button won't help.</p>
   </div>
 </section>
 
@@ -748,7 +752,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
   const colors = {calm:'#f4efe6', kart:'#0b0b0c', stars:'#050a1f'};
   let current = null, depth = 0;
 
-  function routeOf(){ const h = location.hash.replace(/^#\/?/, ''); return screens[h] ? h : 'intro'; }
+  function routeOf(){ if (iq.dead()) return 'iq-score'; const h = location.hash.replace(/^#\/?/, ''); return screens[h] ? h : 'intro'; }
   function themeFor(r){ return r.startsWith('kart') ? 'kart' : r.startsWith('stars') ? 'stars' : 'calm'; }
 
   function render(){
@@ -776,6 +780,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
       return;
     }
     if (e.target.closest('#iq-retake')){ iq.reset(); depth++; location.hash = 'iq1'; return; }
+    if (e.target.closest('#iq-restart')){ iq.reset(); resetChoices(document); depth++; location.hash = 'intro'; return; }
     const opt = e.target.closest('.opt');
     if (opt){
       const wrap = opt.closest('.opts'), screen = opt.closest('.screen');
@@ -797,9 +802,20 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
   document.querySelectorAll('.top a[href^="#"]').forEach(a => a.addEventListener('click', () => depth++));
   window.addEventListener('hashchange', render);
 
+  function resetChoices(root){
+    root.querySelectorAll('.opts').forEach(w => {
+      w.classList.remove('done','lock');
+      w.querySelectorAll('.opt').forEach(o => o.classList.remove('picked','right','wrong'));
+      w.querySelectorAll('.k').forEach((k,i) => { k.textContent = 'abc'[i]; k.classList.remove('mark'); });
+      const s = w.closest('.screen');
+      s.querySelector('.react').classList.remove('on');
+      s.querySelector('.btn.reveal').classList.remove('on');
+    });
+  }
+
   /* ---- IQ calibration ---- */
   const iq = (function(){
-    const KEY = 'sebi30-iq';
+    const KEY = 'sebi30-iq', DEAD = 'sebi30-dead';
     const tiers = {
       5:[200,'Certified galaxy brain. Frankly suspicious. Did you google?','brain'],
       4:[150,'Gifted. One slip — we\'ll blame the sudoku.','cap'],
@@ -812,18 +828,13 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     function save(a){ try { sessionStorage.setItem(KEY, JSON.stringify(a)); } catch(e){} }
     // dev preview: ?iq=4 fakes a score
     const dbg = new URLSearchParams(location.search).get('iq');
-    if (dbg !== null){ const a = {}; for (let i=1;i<=5;i++) a['iq'+i] = i <= +dbg; save(a); }
+    if (dbg !== null){ const a = {}; for (let i=1;i<=5;i++) a['iq'+i] = i <= +dbg; save(a); try { sessionStorage.removeItem(DEAD); } catch(e){} }
     return {
+      dead(){ try { return sessionStorage.getItem(DEAD) === '1'; } catch(e){ return false; } },
       record(route, ok){ const a = load(); a[route] = ok; save(a); },
       reset(){
         save({});
-        document.querySelectorAll('.screen[data-iq]').forEach(s => {
-          const w = s.querySelector('.opts'); w.classList.remove('done','lock');
-          w.querySelectorAll('.opt').forEach(o => { o.classList.remove('picked','right','wrong'); });
-          w.querySelectorAll('.k').forEach((k,i) => { k.textContent = 'abc'[i]; k.classList.remove('mark'); });
-          s.querySelector('.react').classList.remove('on');
-          s.querySelector('.btn.reveal').classList.remove('on');
-        });
+        document.querySelectorAll('.screen[data-iq]').forEach(s => resetChoices(s));
       },
       showScore(){
         const a = load(); let n = 0; for (let i=1;i<=5;i++) if (a['iq'+i]) n++;
@@ -832,6 +843,14 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
         document.getElementById('iq-line').textContent = line;
         document.getElementById('iq-detail').textContent = n + ' of 5 correct. Score calibrated against a control group of one pigeon.';
         document.querySelectorAll('#iq-art svg').forEach(s => s.toggleAttribute('hidden', s.getAttribute('data-art') !== art));
+        // what he's allowed to do next
+        const dead = n === 0;
+        if (dead){ try { sessionStorage.setItem(DEAD, '1'); } catch(e){} }
+        document.getElementById('iq-go').hidden      = n < 4;
+        document.getElementById('iq-retake').hidden  = n < 3;
+        document.getElementById('iq-restart').hidden = n !== 2;
+        document.getElementById('iq-dead').hidden    = !dead;
+        document.getElementById('iq-back').style.visibility = dead ? 'hidden' : '';
       }
     };
   })();
@@ -876,6 +895,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
   })();
 
   render();
+  console.log('%cIndex of /', 'font:bold 20px monospace'); console.log('%c  → /files/', 'font:14px monospace');
 })();
 </script>
 </body>
