@@ -203,7 +203,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     <h1>You're turning <em>thirty.</em></h1>
     <div class="rule"></div>
     <p>We tried to agree on a present. We couldn't.</p>
-    <p>So instead of one gift, you're getting a <em style="font-family:var(--serif)">decision</em> &mdash; and, to warm you up, four completely meaningless ones first.</p>
+    <p>So instead of one gift, you're getting a <em style="font-family:var(--serif)">decision</em> &mdash; and, to warm you up, five completely meaningless ones first.</p>
   </div>
   <div class="foot">
     <button class="btn" data-go="q1">Fine. Let's go &rarr;</button>
@@ -213,7 +213,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
 
 <!-- ============ Q1 ============ -->
 <section class="screen" id="s-q1" data-route="q1">
-  <div class="top"><button data-back>&larr; Back</button><span>1 / 4</span></div>
+  <div class="top"><button data-back>&larr; Back</button><span>1 / 5</span></div>
   <div class="body">
     <p class="kicker">Warm-up</p>
     <h2>How do you feel about turning thirty?</h2>
@@ -229,7 +229,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
 
 <!-- ============ Q2 ============ -->
 <section class="screen" id="s-q2" data-route="q2">
-  <div class="top"><button data-back>&larr; Back</button><span>2 / 4</span></div>
+  <div class="top"><button data-back>&larr; Back</button><span>2 / 5</span></div>
   <div class="body">
     <p class="kicker">Calibration</p>
     <h2>Pick a number.</h2>
@@ -241,14 +241,14 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     </div>
     <p class="react" aria-live="polite"></p>
   </div>
-  <div class="foot"><button class="btn reveal" data-go="q3">Next &rarr;</button>
+  <div class="foot"><button class="btn reveal" data-go="q3">Next &rarr;</button></div>
 </section>
 
 <!-- ============ Q3 ============ -->
 <section class="screen" id="s-q3" data-route="q3">
-  <div class="top"><button data-back>&larr; Back</button><span>3 / 4</span></div>
+  <div class="top"><button data-back>&larr; Back</button><span>3 / 5</span></div>
   <div class="body">
-    <p class="kicker">No question this time</p>
+    <p class="kicker">Which type of AI are you?</p>
     <div class="opts" style="margin-top:0">
       <button class="opt" data-react="Combobulating. Naturally."><span>Combobulating</span><span class="k">a</span></button>
       <button class="opt" data-react="Schlepping. Respect."><span>Schlepping</span><span class="k">b</span></button>
@@ -259,9 +259,25 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
   <div class="foot"><button class="btn reveal" data-go="q4">Next &rarr;</button></div>
 </section>
 
-<!-- ============ Q3 ============ -->
+<!-- ============ Q4 (placeholder — fill in) ============ -->
 <section class="screen" id="s-q4" data-route="q4">
-  <div class="top"><button data-back>&larr; Back</button><span>4 / 4</span></div>
+  <div class="top"><button data-back>&larr; Back</button><span>4 / 5</span></div>
+  <div class="body">
+    <p class="kicker"><span class="todo">Kicker tbd</span></p>
+    <h2><span class="todo">Question tbd?</span></h2>
+    <div class="opts">
+      <button class="opt" data-react="Reaction A tbd"><span><span class="todo">Option A tbd</span></span><span class="k">a</span></button>
+      <button class="opt" data-react="Reaction B tbd"><span><span class="todo">Option B tbd</span></span><span class="k">b</span></button>
+      <button class="opt" data-react="Reaction C tbd"><span><span class="todo">Option C tbd</span></span><span class="k">c</span></button>
+    </div>
+    <p class="react" aria-live="polite"></p>
+  </div>
+  <div class="foot"><button class="btn reveal" data-go="q5">Next &rarr;</button></div>
+</section>
+
+<!-- ============ Q3 ============ -->
+<section class="screen" id="s-q5" data-route="q5">
+  <div class="top"><button data-back>&larr; Back</button><span>5 / 5</span></div>
   <div class="body">
     <p class="kicker">Last one</p>
     <h2>Which sounds more like you?</h2>
@@ -531,7 +547,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
 
 <script>
 (function(){
-  const order = ['intro','q1','q2','q3','q4','choose','kart','kart-place','kart-plan','kart-fine','stars','stars-place','stars-plan','stars-fine'];
+  const order = ['intro','q1','q2','q3','q4','q5','choose','kart','kart-place','kart-plan','kart-fine','stars','stars-place','stars-plan','stars-fine'];
   const screens = {};
   document.querySelectorAll('.screen').forEach(s => screens[s.dataset.route] = s);
   const body = document.body;
