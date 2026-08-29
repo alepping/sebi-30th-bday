@@ -30,7 +30,18 @@
   .bubble::after{content:""; position:absolute; left:50%; bottom:-14px; width:18px; height:18px; background:#fff; border-right:3px solid #2b2b2b; border-bottom:3px solid #2b2b2b; transform:translateX(-50%) rotate(45deg)}
   [data-stage="3"] .bubble{opacity:1; transform:translate(-50%,0) scale(1)}
   /* ---- the gate ---- */
-  .gate .stage,.gate .peek{display:none}
+  .gate .stage,.gate .peek,.pre .stage,.pre .peek{display:none}
+  body.pre{background:#0a0a0c}
+  #pre{display:none; color:#d9d6cf; text-align:center; padding:2rem 1.25rem; max-width:22rem}
+  .pre #pre{display:block}
+  #pre p{font-style:italic; font-size:clamp(1.25rem,5.5vw,1.6rem); line-height:1.45; margin:0 0 1.75rem}
+  #pre button{font:inherit; font-size:1.05rem; font-style:italic; background:transparent; color:#d9d6cf; border:1px solid #6b6880; border-radius:999px; padding:.7rem 1.6rem; cursor:pointer}
+  .figure{cursor:pointer; transition:transform .3s}
+  .gate:not(.asked) .figure{animation:breathe 4s ease-in-out infinite}
+  @keyframes breathe{50%{transform:translateY(-6px) scale(1.02)}}
+  .figure:active{transform:scale(.97)}
+  #gate p,#gate form,#gate .no{opacity:0; transform:translateY(8px); transition:opacity .6s .15s, transform .6s .15s; pointer-events:none}
+  .asked #gate p,.asked #gate form,.asked #gate .no{opacity:1; transform:none; pointer-events:auto}
   #gate{display:none; color:#d9d6cf; text-align:center; padding:2rem 1.25rem; max-width:24rem}
   .gate #gate{display:block}
   .figure{width:min(52vw,190px); margin:0 auto 1.5rem; filter:drop-shadow(0 0 30px rgba(180,170,255,.18))}
@@ -44,17 +55,22 @@
   #gate input{-moz-appearance:textfield; appearance:textfield}
   #gate input::-webkit-outer-spin-button,#gate input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
   #gate button{font:inherit; font-size:1rem; font-style:italic; background:transparent; color:#d9d6cf; border:1px solid #6b6880; border-radius:999px; padding:.5rem 1.1rem; cursor:pointer}
-  #gate .no{min-height:1.6rem; margin-top:1rem; font-style:italic; color:#a09cb3; opacity:0; transition:opacity .3s}
-  #gate .no.on{opacity:1}
+  #gate .no{min-height:1.6rem; margin-top:1rem; font-style:italic; color:#a09cb3}
+  #gate .no{visibility:hidden}
+  #gate .no.on{visibility:visible}
   .peek{position:fixed; inset:0; background:#000; display:none; place-items:center; z-index:9}
   .peek.on{display:grid}
   .peek img{max-width:100%; max-height:100%; object-fit:contain}
   @media (prefers-reduced-motion:reduce){*{transition-duration:.01s !important; animation:none !important}}
 </style>
 </head>
-<body class="gate">
+<body class="pre">
+  <div id="pre">
+    <p>Is your sound on?</p>
+    <button type="button" id="continue">Continue</button>
+  </div>
   <div id="gate">
-    <svg class="figure" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg class="figure" id="figure" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" role="button" aria-label="A hooded figure. Tap it.">
       <path d="M100 8 C62 8 44 46 40 80 C36 116 24 150 18 200 L10 252 L190 252 L182 200 C176 150 164 116 160 80 C156 46 138 8 100 8Z" fill="#17161c"/>
       <path d="M100 30 C78 30 66 58 66 86 C66 112 80 130 100 130 C120 130 134 112 134 86 C134 58 122 30 100 30Z" fill="#050508"/>
       <g class="eyes"><circle cx="86" cy="92" r="4" fill="#e8dcff"/><circle cx="114" cy="92" r="4" fill="#e8dcff"/></g>
@@ -113,16 +129,25 @@
   /* ---- final boss music: autoplay if allowed, else on first interaction ---- */
   const boss = document.getElementById('boss');
   boss.volume = .7;
-  const GESTURES = ['click','touchend','pointerup','keydown'];
   let musicOn = false;
   function startMusic(){
     if (musicOn) return;
     if (boss.error || boss.networkState === 3) boss.load();   // e.g. a cached 404 from earlier
     const p = boss.play();
-    if (p && p.then) p.then(() => { musicOn = true; GESTURES.forEach(ev => document.removeEventListener(ev, startMusic)); }).catch(() => {});
+    if (p && p.then) p.then(() => { musicOn = true; }).catch(() => {});
   }
-  GESTURES.forEach(ev => document.addEventListener(ev, startMusic, {passive:true}));
-  startMusic();
+  // 1. "sound on?" -> the fight (figure only). Use the tap to unlock audio for later.
+  document.getElementById('continue').addEventListener('click', () => {
+    document.body.classList.remove('pre'); document.body.classList.add('gate');
+    const p = boss.play(); if (p && p.then) p.then(() => { boss.pause(); boss.currentTime = 0; }).catch(() => {});
+  });
+  // 2. tap the figure -> the question, and the music
+  document.getElementById('figure').addEventListener('click', () => {
+    if (document.body.classList.contains('asked')) return;
+    document.body.classList.add('asked');
+    startMusic();
+    setTimeout(() => num.focus(), 400);
+  });
   function fadeMusic(){
     const t = setInterval(() => { boss.volume = Math.max(0, boss.volume - .05); if (boss.volume === 0){ boss.pause(); clearInterval(t); } }, 120);
   }
@@ -141,7 +166,7 @@
     }
   });
   const stage = document.getElementById('stage'), peek = document.getElementById('peek');
-  const pre = new URLSearchParams(location.search).get('stage'); if (pre !== null){ stage.dataset.stage = Math.min(3, +pre); document.body.classList.remove('gate'); }
+  const pre = new URLSearchParams(location.search).get('stage'); if (pre !== null){ stage.dataset.stage = Math.min(3, +pre); document.body.classList.remove('gate','pre'); }
   stage.addEventListener('click', e => {
     const s = +stage.dataset.stage;
     if (s < 3){
