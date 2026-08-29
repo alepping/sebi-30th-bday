@@ -11,7 +11,7 @@ Written 2026-08-29. Read this before touching anything.
 | Live URL | https://alepping.github.io/sebi-30th-bday/ — verified live, HTTP 200 |
 | Pages config | Legacy build, source = `main` branch, path `/`. Enabled via API, no Actions workflow. |
 | QR code | Generated, decode-verified, **printed / about to be printed** |
-| Design | **Not started.** Only a holding page exists. This is the next session's job. |
+| Design | **Draft built 2026-08-29** — see "What the site is" below. Facts/jokes still need concretising with the user. |
 
 ## The one hard constraint: DO NOT BREAK THE QR CODE
 
@@ -71,7 +71,37 @@ gh api repos/alepping/sebi-30th-bday/pages/builds/latest --jq .status
 
 `gh` is authenticated as `alepping` (ssh for git ops). Token scopes: `repo`, `gist`, `read:org`, `admin:public_key` — note **no `workflow` scope**, so it cannot push a GitHub Actions workflow file. Stick with the legacy branch build.
 
-## Open design questions — ask these first
+## What the site is (decided 2026-08-29)
+
+**Not a party invite.** It is a gift-reveal experience for Sebi himself, in English. Flow:
+
+```
+intro → q1 → q2 → q3 (meaningless joke choices, each with a snarky reaction)
+      → choose (the real fork)
+         ├── kart  → kart-place  → kart-plan  → kart-fine  → (link to stars)
+         └── stars → stars-place → stars-plan → stars-fine → (link to kart)
+```
+
+- Hash-routed single `index.html`; browser back/forward works; every screen has Back + an "Options" link to the fork. Nothing is recorded — he tells the group in person.
+- Three themes on `body[data-theme]`: `calm` (ivory, Fraunces serif) for intro/questions, `kart` (black, red/yellow, Barlow Condensed italic, checkered strips, speed lines) and `stars` (navy, gold, twinkling canvas starfield).
+- Sebi's face: `assets/sebi-head.png` is a Vision person-segmentation cutout of `sebi_photo.jpg` (source photo is **gitignored**, stays local). Composited via inline SVG into a racing helmet (kart hero) and a space helmet (stars hero). `assets/sebi-bust.png` is unused so far.
+- Photos: `assets/kart-track.jpg` (Wikimedia CC0, generic) and `assets/westhavelland-night.jpg` (Wikimedia, Anphex, CC BY-SA 4.0 — credit is in the caption, keep it).
+- Yellow `<span class="todo">` markers in the page = facts the user still has to supply (package choice, number of guests, dinner, overnight). Search `class="todo"`.
+- The three joke questions are **dummies** — the user will supply the real ones.
+
+### Research facts used (verified 2026-08-29)
+- Berlin Kart: Werbellinstraße 50, 12053 Berlin, U8 Boddinstraße, indoor ~400 m (site still claims 752 m in places), 6.5 hp Sodi karts, lap timing on monitors, packages €22 (11 min) – €77 (66 min endurance), open daily. https://www.berlin-kart.de/
+- Sternenpark Westhavelland: IDA Dark Sky Park Feb 2014, 1,380 km², ~21.7 mag/arcsec² (Bortle ~3), Gülpe "darkest place in Germany". Guides: Thomas Becker (zumnordlicht.com — observation evenings Astronomie-Labor Kleßen €10, telescope course €45, night walk €15; most dates waitlisted), Marion Werner Strodehne (star walks, 1.5–2 h). RE4 rail line closed Oct 2026–Dec 2027 — go by car.
+
+### Preview without deploying
+Headless Firefox at phone width, with reduced motion so the capture is the final state:
+```
+echo 'user_pref("ui.prefersReducedMotion", 1);' > /tmp/ffprof/user.js
+/Applications/Firefox.app/Contents/MacOS/firefox --headless --no-remote --profile /tmp/ffprof \
+  --window-size=390,844 --screenshot out.png "file://$PWD/index.html#kart"
+```
+
+## Old open questions (mostly moot now)
 
 The user was asked these and interrupted before answering, so **all of it is still unknown.** Nothing about the party itself has been established — there are no confirmed facts, and the holding page contains none.
 
@@ -80,7 +110,7 @@ The user was asked these and interrupted before answering, so **all of it is sti
 3. **Language.** Placeholder is German, assumed from context — *not confirmed.*
 4. **The actual party facts.** Date, time, venue, address — all unknown. Must come from the user.
 
-### RSVP needs a decision
+### RSVP — not needed (no invite)
 It's a static site, so there is no backend. Realistic options, roughly in order of how well they fit:
 - `mailto:` or a WhatsApp deep link — zero infrastructure, works immediately
 - Embedded Google Form — real collected responses, but an ugly iframe
