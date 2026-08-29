@@ -759,12 +759,27 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
   const colors = {calm:'#f4efe6', kart:'#0b0b0c', stars:'#050a1f'};
   let current = null, depth = 0;
 
+  /* ---- navigation memory: the URL is not the source of truth ---- */
+  const NAV = 'sebi30-route', VIS = 'sebi30-visited';
+  const ss = { get(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { sessionStorage.setItem(k, v); } catch(e){} } };
+  const visited = (function(){ try { return JSON.parse(ss.get(VIS) || '{}'); } catch(e){ return {}; } })();
+  visited.intro = true;
+  function allow(r){ visited[r] = true; ss.set(VIS, JSON.stringify(visited)); }
+  function nav(r){ allow(r); depth++; location.hash = r; }
+  const dev = new URLSearchParams(location.search).has('dev');
+
   function routeOf(){ if (iq.dead()) return 'iq-score'; const h = location.hash.replace(/^#\/?/, ''); return screens[h] ? h : 'intro'; }
   function themeFor(r){ return r.startsWith('kart') ? 'kart' : r.startsWith('stars') ? 'stars' : 'calm'; }
 
   function render(){
-    const r = routeOf();
+    let r = routeOf();
+    if (!dev && !visited[r] && !(r === 'iq-score' && iq.dead())){
+      // hand-typed hash to a screen he hasn't reached: stay put
+      r = (current && visited[current]) ? current : 'intro';
+      history.replaceState(null, '', '#' + r);
+    }
     if (r === current) return;
+    ss.set(NAV, r);
     const back = current && order.indexOf(r) < order.indexOf(current);
     if (current) screens[current].classList.remove('active','back');
     const s = screens[r];
@@ -785,10 +800,12 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
 
   document.addEventListener('click', e => {
     const go = e.target.closest('[data-go]');
-    if (go){ depth++; location.hash = go.dataset.go; return; }
+    if (go){ nav(go.dataset.go); return; }
+    const top = e.target.closest('.top a[href^="#"]');
+    if (top){ e.preventDefault(); nav(top.getAttribute('href').slice(1)); return; }
     if (e.target.closest('[data-back]')){
       if (depth > 0 && history.length > 1){ depth--; history.back(); }
-      else { const i = order.indexOf(current); location.hash = order[Math.max(0, i-1)]; }
+      else { const i = order.indexOf(current); nav(order[Math.max(0, i-1)]); }
       return;
     }
     if (e.target.closest('#card-egg')){
@@ -797,8 +814,8 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
       el.textContent = "It wouldn't be an easter egg if it were that easy to find."; el.classList.add('on');
       return;
     }
-    if (e.target.closest('#iq-retake')){ iq.reset(); depth++; location.hash = 'iq1'; return; }
-    if (e.target.closest('#iq-restart')){ iq.reset(); resetChoices(document); depth++; location.hash = 'intro'; return; }
+    if (e.target.closest('#iq-retake')){ iq.reset(); nav('iq1'); return; }
+    if (e.target.closest('#iq-restart')){ iq.reset(); resetChoices(document); nav('intro'); return; }
     const opt = e.target.closest('.opt');
     if (opt){
       const wrap = opt.closest('.opts'), screen = opt.closest('.screen');
@@ -817,7 +834,6 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
       screen.querySelector('.btn.reveal').classList.add('on');
     }
   });
-  document.querySelectorAll('.top a[href^="#"]').forEach(a => a.addEventListener('click', () => depth++));
   window.addEventListener('hashchange', render);
 
   function resetChoices(root){
@@ -924,6 +940,12 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     return { setActive(v){ if (v === active) return; active = v; cancelAnimationFrame(raf); if (v) draw(performance.now()); } };
   })();
 
+  (function restore(){
+    if (dev) return;
+    const stored = ss.get(NAV);
+    const target = (stored && screens[stored] && visited[stored]) ? stored : 'intro';
+    if (location.hash !== '#' + target) history.replaceState(null, '', '#' + target);
+  })();
   render();
 })();
 </script>
