@@ -203,7 +203,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     <h1>You're turning <em>thirty.</em></h1>
     <div class="rule"></div>
     <p>We tried to agree on a present. We couldn't.</p>
-    <p>So instead of one gift, you're getting a <em style="font-family:var(--serif)">decision</em> &mdash; and, to warm you up, three completely meaningless ones first.</p>
+    <p>So instead of one gift, you're getting a <em style="font-family:var(--serif)">decision</em> &mdash; and, to warm you up, four completely meaningless ones first.</p>
   </div>
   <div class="foot">
     <button class="btn" data-go="q1">Fine. Let's go &rarr;</button>
@@ -213,14 +213,14 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
 
 <!-- ============ Q1 ============ -->
 <section class="screen" id="s-q1" data-route="q1">
-  <div class="top"><button data-back>&larr; Back</button><span>1 / 3</span></div>
+  <div class="top"><button data-back>&larr; Back</button><span>1 / 4</span></div>
   <div class="body">
     <p class="kicker">Warm-up</p>
     <h2>How do you feel about turning thirty?</h2>
     <div class="opts">
       <button class="opt" data-react="Suspicious. Continue."><span>Great, actually</span><span class="k">a</span></button>
       <button class="opt" data-react="We will, however, keep talking about it."><span>Let's not talk about it</span><span class="k">b</span></button>
-      <button class="opt" data-react="The page has been informed. It does not care."><span>I'm still 29 for a few more hours</span><span class="k">c</span></button>
+      <button class="opt" data-react="If you say so..."><span>I'm still 29 for a few more hours</span><span class="k">c</span></button>
     </div>
     <p class="react" aria-live="polite"></p>
   </div>
@@ -229,23 +229,39 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
 
 <!-- ============ Q2 ============ -->
 <section class="screen" id="s-q2" data-route="q2">
-  <div class="top"><button data-back>&larr; Back</button><span>2 / 3</span></div>
+  <div class="top"><button data-back>&larr; Back</button><span>2 / 4</span></div>
   <div class="body">
     <p class="kicker">Calibration</p>
     <h2>Pick a number.</h2>
     <div class="opts">
       <button class="opt" data-react="Denial. Classic."><span>29</span><span class="k">a</span></button>
-      <button class="opt" data-react="Correct. Painfully correct."><span>30</span><span class="k">b</span></button>
-      <button class="opt" data-react="An optimist. Or bad at maths."><span>31</span><span class="k">c</span></button>
+      <button class="opt" data-react="Thats right. Now you ain't got nothing on me(Ali)."><span>30</span><span class="k">b</span></button>
+      <!-- <button class="opt" data-react="An optimist. Or bad at maths."><span>31</span><span class="k">c</span></button> -->
+      <button class="opt" data-react="Adding you to them Epstein files you sick bastard."><span>14</span><span class="k">c</span></button>
     </div>
     <p class="react" aria-live="polite"></p>
   </div>
-  <div class="foot"><button class="btn reveal" data-go="q3">Next &rarr;</button></div>
+  <div class="foot"><button class="btn reveal" data-go="q3">Next &rarr;</button>
 </section>
 
 <!-- ============ Q3 ============ -->
 <section class="screen" id="s-q3" data-route="q3">
-  <div class="top"><button data-back>&larr; Back</button><span>3 / 3</span></div>
+  <div class="top"><button data-back>&larr; Back</button><span>3 / 4</span></div>
+  <div class="body">
+    <p class="kicker">No question this time</p>
+    <div class="opts" style="margin-top:0">
+      <button class="opt" data-react="Combobulating. Naturally."><span>Combobulating</span><span class="k">a</span></button>
+      <button class="opt" data-react="Schlepping. Respect."><span>Schlepping</span><span class="k">b</span></button>
+      <button class="opt" data-react="Clauding. We'll allow it."><span>Clauding</span><span class="k">c</span></button>
+    </div>
+    <p class="react" aria-live="polite"></p>
+  </div>
+  <div class="foot"><button class="btn reveal" data-go="q4">Next &rarr;</button></div>
+</section>
+
+<!-- ============ Q3 ============ -->
+<section class="screen" id="s-q4" data-route="q4">
+  <div class="top"><button data-back>&larr; Back</button><span>4 / 4</span></div>
   <div class="body">
     <p class="kicker">Last one</p>
     <h2>Which sounds more like you?</h2>
@@ -515,7 +531,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
 
 <script>
 (function(){
-  const order = ['intro','q1','q2','q3','choose','kart','kart-place','kart-plan','kart-fine','stars','stars-place','stars-plan','stars-fine'];
+  const order = ['intro','q1','q2','q3','q4','choose','kart','kart-place','kart-plan','kart-fine','stars','stars-place','stars-plan','stars-fine'];
   const screens = {};
   document.querySelectorAll('.screen').forEach(s => screens[s.dataset.route] = s);
   const body = document.body;
