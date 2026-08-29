@@ -110,6 +110,8 @@ body[data-theme="stars"] .kicker{color:var(--accent2)}
   width:100%; transition:transform .15s var(--ease), opacity .3s;
 }
 .btn:active{transform:scale(.98)}
+.btn[data-both]{flex-direction:column; gap:.1rem; line-height:1.15}
+.btn small{display:block; font-size:.72em; font-weight:400; opacity:.8; letter-spacing:.02em; text-transform:none; font-style:italic}
 .btn.ghost{background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1px var(--line)}
 .btn.ghost:hover{box-shadow:inset 0 0 0 1px var(--ink)}
 body[data-theme="kart"] .btn{font-family:var(--cond); font-weight:800; font-style:italic; text-transform:uppercase; font-size:1.25rem; letter-spacing:.06em; border-radius:6px}
@@ -625,8 +627,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     </ul>
   </div>
   <div class="foot">
-    <button class="btn" data-go="stars">Now look at Option B &rarr;</button>
-    <button class="btn ghost" data-go="choose">Back to both options</button>
+    <button class="btn" data-go="choose" data-both>Back to both options</button>
   </div>
 </section>
 
@@ -742,8 +743,7 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     </ul>
   </div>
   <div class="foot">
-    <button class="btn" data-go="kart">Now look at Option A &rarr;</button>
-    <button class="btn ghost" data-go="choose">Back to both options</button>
+    <button class="btn" data-go="choose" data-both>Back to both options</button>
   </div>
 </section>
 
@@ -776,7 +776,10 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     current = r;
     sky.setActive(body.dataset.theme === 'stars');
     if (r === 'iq-score') iq.showScore();
-    if (r === 'kart-fine' || r === 'stars-fine') seen.mark(r.split('-')[0]);
+    if (r === 'kart-fine' || r === 'stars-fine'){
+      seen.mark(r.split('-')[0]);
+      screens[r].querySelector('[data-both]').innerHTML = seen.both() ? 'Back to both options<small>(something strange happened&hellip;)</small>' : 'Back to both options';
+    }
     if (r === 'choose') seen.apply();
   }
 
@@ -835,7 +838,8 @@ body[data-theme="kart"] .photo{border-radius:6px; box-shadow:0 0 0 3px #0b0b0c, 
     if (new URLSearchParams(location.search).has('seen')){ try { sessionStorage.setItem(KEY, '{"kart":true,"stars":true}'); } catch(e){} }
     return {
       mark(p){ const a = load(); a[p] = true; try { sessionStorage.setItem(KEY, JSON.stringify(a)); } catch(e){} },
-      apply(){ const a = load(); document.getElementById('card-egg').hidden = !(a.kart && a.stars); }
+      both(){ const a = load(); return !!(a.kart && a.stars); },
+      apply(){ document.getElementById('card-egg').hidden = !this.both(); }
     };
   })();
 
